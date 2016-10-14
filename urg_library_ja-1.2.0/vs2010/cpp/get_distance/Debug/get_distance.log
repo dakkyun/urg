@@ -1,0 +1,22 @@
+﻿2016/10/14 16:47:30 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\get_distance\get_distance.vcxproj" (build ターゲット)。
+     1>InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "Debug\get_distance.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         すべての出力が最新のものです。
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\include\cpp" /I..\..\..\include\cpp /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\samples\cpp\Connection_information.cpp ..\..\..\samples\cpp\get_distance.cpp
+         get_distance.cpp
+         Connection_information.cpp
+         コードを生成中...
+       ManifestResourceCompile:
+         すべての出力が最新のものです。
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\get_distance.exe" /INCREMENTAL /NOLOGO urg_cpp.lib ws2_32.lib setupapi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\get_distance.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\get_distance.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\get_distance.lib" /MACHINE:X86 Debug\get_distance.exe.embed.manifest.res
+         Debug\Connection_information.obj
+         Debug\get_distance.obj
+     1>LINK : fatal error LNK1104: ファイル 'urg_cpp.lib' を開くことができません。
+     1>プロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\get_distance\get_distance.vcxproj" (build ターゲット) のビルドが終了しました -- 失敗。
+
+ビルドに失敗しました。
+
+経過時間 00:00:01.37

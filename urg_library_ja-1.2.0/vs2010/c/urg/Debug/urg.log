@@ -1,0 +1,27 @@
+﻿2016/10/14 16:42:05 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\urg\urg.vcxproj" (build ターゲット)。
+     1>PrepareForBuild:
+         ディレクトリ "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\" を作成しています。
+       InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "Debug\urg.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         すべての出力が最新のものです。
+       Lib:
+         すべての出力が最新のものです。
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\urg.lib" /NOLOGO Debug\urg_connection.obj
+         Debug\urg_debug.obj
+         Debug\urg_ring_buffer.obj
+         Debug\urg_sensor.obj
+         Debug\urg_serial.obj
+         Debug\urg_serial_utils.obj
+         Debug\urg_tcpclient.obj
+         Debug\urg_utils.obj
+         urg.vcxproj -> C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\urg.lib
+       FinalizeBuildStatus:
+         ファイル "Debug\urg.unsuccessfulbuild" を削除しています。
+         "Debug\urg.lastbuildstate" のタッチ タスクを実行しています。
+     1>プロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\urg\urg.vcxproj" (build ターゲット) のビルドが完了しました。
+
+ビルドに成功しました。
+
+経過時間 00:00:00.21

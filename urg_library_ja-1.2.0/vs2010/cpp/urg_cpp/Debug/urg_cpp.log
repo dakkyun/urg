@@ -1,0 +1,21 @@
+﻿2016/10/14 16:42:05 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\urg_cpp\urg_cpp.vcxproj" (build ターゲット)。
+     1>InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "Debug\urg_cpp.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\..\..\include\cpp /I..\..\..\include\c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\src\ticks.cpp ..\..\..\src\Urg_driver.cpp
+         Urg_driver.cpp
+         ticks.cpp
+         コードを生成中...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\urg_cpp.lib" urg.lib /LIBPATH:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\\" /NOLOGO Debug\ticks.obj
+         Debug\Urg_driver.obj
+         urg_cpp.vcxproj -> C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Debug\urg_cpp.lib
+       FinalizeBuildStatus:
+         ファイル "Debug\urg_cpp.unsuccessfulbuild" を削除しています。
+         "Debug\urg_cpp.lastbuildstate" のタッチ タスクを実行しています。
+     1>プロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\urg_cpp\urg_cpp.vcxproj" (build ターゲット) のビルドが完了しました。
+
+ビルドに成功しました。
+
+経過時間 00:00:01.51

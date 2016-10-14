@@ -1,0 +1,33 @@
+﻿2016/10/14 16:35:42 にビルドを開始しました。
+     1>ノード 5 上のプロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\find_port\find_port.vcxproj" (build ターゲット)。
+     1>InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "Debug\find_port.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\..\..\include\c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\..\samples\c\find_port.c ..\..\..\samples\c\open_urg_sensor.c
+         open_urg_sensor.c
+         find_port.c
+         コードを生成中...
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\find_port.exe.embed.manifest.res" Debug\find_port_manifest.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug" urg.lib ws2_32.lib setupapi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\find_port.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.lib" /MACHINE:X86 Debug\find_port.exe.embed.manifest.res
+         Debug\find_port.obj
+         Debug\open_urg_sensor.obj
+         "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\urg.lib"
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\find_port.exe.embed.manifest" /manifest Debug\find_port.exe.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\find_port.exe.embed.manifest.res" Debug\find_port_manifest.rc 
+       LinkEmbedManifest:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug" urg.lib ws2_32.lib setupapi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\find_port.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.lib" /MACHINE:X86 Debug\find_port.exe.embed.manifest.res
+         Debug\find_port.obj
+         Debug\open_urg_sensor.obj
+         "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\urg.lib"
+         find_port.vcxproj -> C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\Debug\find_port.exe
+       FinalizeBuildStatus:
+         ファイル "Debug\find_port.unsuccessfulbuild" を削除しています。
+         "Debug\find_port.lastbuildstate" のタッチ タスクを実行しています。
+     1>プロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\c\find_port\find_port.vcxproj" (build ターゲット) のビルドが完了しました。
+
+ビルドに成功しました。
+
+経過時間 00:00:02.64

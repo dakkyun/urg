@@ -1,0 +1,20 @@
+﻿2016/10/14 16:49:42 にビルドを開始しました。
+     1>ノード 4 上のプロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\get_distance_intensity\get_distance_intensity.vcxproj" (build ターゲット)。
+     1>InitializeBuildStatus:
+         "AlwaysCreate" が指定されたため "Release\get_distance_intensity.unsuccessfulbuild" を作成しています。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\..\..\include\cpp /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\samples\cpp\Connection_information.cpp ..\..\..\samples\cpp\get_distance_intensity.cpp
+         Connection_information.cpp
+         get_distance_intensity.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Release\get_distance_intensity.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Users\control-2016-03\Desktop" urg_cpp.lib ws2_32.lib setupapi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\get_distance_intensity.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Release\get_distance_intensity.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Release\get_distance_intensity.lib" /MACHINE:X86 Release\Connection_information.obj
+         Release\get_distance_intensity.obj
+     1>urg_cpp.lib(Urg_driver.obj) : error LNK2038: '_ITERATOR_DEBUG_LEVEL' の不一致が検出されました。値 '2' が 0 の値 'Connection_information.obj' と一致しません。
+     1>urg_cpp.lib(Urg_driver.obj) : warning LNK4075: /EDITANDCONTINUE は /OPT:ICF の指定によって無視されます。
+     1>LINK : warning LNK4098: defaultlib 'MSVCRTD' は他のライブラリの使用と競合しています。/NODEFAULTLIB:library を使用してください。
+     1>C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\Release\get_distance_intensity.exe : fatal error LNK1319: 1 の不一致が検出されました
+     1>プロジェクト "C:\Users\control-2016-03\Desktop\urg_library_ja-1.2.0\vs2010\cpp\get_distance_intensity\get_distance_intensity.vcxproj" (build ターゲット) のビルドが終了しました -- 失敗。
+
+ビルドに失敗しました。
+
+経過時間 00:00:02.60
