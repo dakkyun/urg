@@ -12,13 +12,13 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 #include <stdio.h>
 
 
-
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
 {
 #if 1
 
 	int front_index;
 	int i;
+	int convex[1080] = {0};
 
 	(void)data_n;
 
@@ -26,7 +26,15 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	for(i = rad_s;i <= rad_e;i++){
 		front_index = urg_step2index(urg, i);
 		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
+		if(i > 0 && i+1 < rad_e){
+			if(data[i-1] < data[i] && data[i] > data[i+1])
+				convex[i] = 1;
+		}
 		//printf("%d\n",front_index);
+	}
+	for(i = rad_s;i <= rad_e;i++){
+		if(convex[i] == 1)
+			printf("Convex : %d Distance : %ld [mm]\n",i,data[i]);
 	}
 
 #else
@@ -57,18 +65,16 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 #endif
 }
 
-
 int main(int argc, char *argv[])
 {
 	enum {
-		CAPTURE_TIMES = 1,
+		CAPTURE_TIMES = 2,
 	};
 	urg_t urg;
 	long *data = NULL;
 	long time_stamp;
 	int n;
 	int i;
-
 	if (open_urg_sensor(&urg, argc, argv) < 0) {
 		return 1;
 	}
@@ -88,7 +94,7 @@ int main(int argc, char *argv[])
 #endif
 
 	urg_start_measurement(&urg, URG_DISTANCE, URG_SCAN_INFINITY, 0);
-	for (i = 0; i < CAPTURE_TIMES; ++i) {
+	while (1) {
 		n = urg_get_distance(&urg, data, &time_stamp);
 		if (n <= 0) {
 			printf("urg_get_distance: %s\n", urg_error(&urg));
@@ -108,3 +114,4 @@ int main(int argc, char *argv[])
 #endif
 	return 0;
 }
+
