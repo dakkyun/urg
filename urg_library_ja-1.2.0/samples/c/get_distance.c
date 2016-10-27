@@ -10,6 +10,9 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 #include "open_urg_sensor.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+
+#define PI 3.1415
 
 
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
@@ -17,14 +20,19 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 #if 1
 
 	int front_index;
-	int i;
-	int convex[1080] = {0};
-
+	int i,j;
+	int convex[1080] = {0},clcon[] = {0};
+	long cldis[] = {0};
+	
+	double X = 10.0,Y = 7.0;
+	double x,y;
+	double deg,rad;	
+	
 	(void)data_n;
 
 	// 前方のデータのみを表示
 	for(i = rad_s;i <= rad_e;i++){
-		front_index = urg_step2index(urg, i);
+		//front_index = urg_step2index(urg, i);
 		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
 		if(i > 0 && i+1 < rad_e){
 			if(data[i-1] < data[i] && data[i] > data[i+1])
@@ -32,10 +40,25 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		}
 		//printf("%d\n",front_index);
 	}
+	j = 0;
 	for(i = rad_s;i <= rad_e;i++){
-		if(convex[i] == 1)
+		if(convex[i] == 1){
 			printf("Convex : %d Distance : %ld [mm]\n",i,data[i]);
+			cldis[j] = data[i];
+			clcon[j] = i;
+			j++;
+		}
+		
 	}
+	
+	//calculation
+	
+	deg = (clcon[3] - clcon[1]) * 0.25;
+	rad = deg * PI / 180.0;
+
+	y = cldis[1] * 1000 * cldis[3] * 1000 * sin(rad) / X;
+	x = (X / 2.0) - sqrt( pow(cldis[3] * 1000 , 2.0) - pow(y , 2.0) );
+	printf("coordinate : (%f , %f)\n",x,y);
 
 #else
 	(void)time_stamp;
