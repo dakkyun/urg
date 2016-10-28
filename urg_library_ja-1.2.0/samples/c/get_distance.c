@@ -21,8 +21,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 	int front_index;
 	int i,j;
-	int convex[1080] = {0},clcon[] = {0};
-	long cldis[] = {0};
+	int clcon[1081] = {0};
+	int convex[1081] = {0};
+	long cldis[1081] = {0};
 	
 	double X = 10.0,Y = 7.0;
 	double x,y;
@@ -34,8 +35,12 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	for(i = rad_s;i <= rad_e;i++){
 		//front_index = urg_step2index(urg, i);
 		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
-		if(i > 0 && i+1 < rad_e){
-			if(data[i-1] < data[i] && data[i] > data[i+1])
+		if(i >= 280 && i <= 800){
+			for(j = 0;j < 100; j++){
+				if(data[i-(j+1)] > data[i] || data[i] < data[i+(j+1)])
+					break;
+			}
+			if(j == 100)
 				convex[i] = 1;
 		}
 		//printf("%d\n",front_index);
@@ -47,17 +52,18 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			cldis[j] = data[i];
 			clcon[j] = i;
 			j++;
+			convex[i] = 0;
 		}
 		
 	}
 	
 	//calculation
 	
-	deg = (clcon[3] - clcon[1]) * 0.25;
+	deg = (clcon[2] - clcon[1]) * 0.25;
 	rad = deg * PI / 180.0;
 
-	y = cldis[1] * 1000 * cldis[3] * 1000 * sin(rad) / X;
-	x = (X / 2.0) - sqrt( pow(cldis[3] * 1000 , 2.0) - pow(y , 2.0) );
+	y = cldis[1] * 1000 * cldis[2] * 1000 * sin(rad) / X;
+	x = (X / 2.0) - sqrt( pow(cldis[2] * 1000 , 2.0) - pow(y , 2.0) );
 	printf("coordinate : (%f , %f)\n",x,y);
 
 #else
