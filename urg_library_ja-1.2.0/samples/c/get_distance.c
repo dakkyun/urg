@@ -23,11 +23,12 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int i,j;
 	int clcon[1081] = {0};
 	int convex[1081] = {0};
-	long cldis[1081] = {0};
+	long cldis1[1081] = {0};
 	
-	double X = 10.0,Y = 7.0;
-	double x,y;
-	double deg,rad;	
+	double X = 0.19,Y = 0.1,sp = 0.03;
+	double x,y,x0;
+	double deg,rad,stddeg,cmpdeg,slope;
+	double cldis0;
 	
 	(void)data_n;
 
@@ -49,7 +50,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	for(i = rad_s;i <= rad_e;i++){
 		if(convex[i] == 1){
 			printf("Convex : %d Distance : %ld [mm]\n",i,data[i]);
-			cldis[j] = data[i];
+			cldis1[j] = data[i];
 			clcon[j] = i;
 			j++;
 			convex[i] = 0;
@@ -57,14 +58,25 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		
 	}
 	
-	//calculation
+	//coordinate
 	
-	deg = (clcon[2] - clcon[1]) * 0.25;
+	deg = (clcon[1] - clcon[0]) * 0.25;
 	rad = deg * PI / 180.0;
 
-	y = cldis[1] * 1000 * cldis[2] * 1000 * sin(rad) / X;
-	x = (X / 2.0) - sqrt( pow(cldis[2] * 1000 , 2.0) - pow(y , 2.0) );
-	printf("coordinate : (%f , %f)\n",x,y);
+	y = cldis1[0] / 1000.0 * cldis1[1] / 1000.0 * sin(rad) / X;
+	x = (X / 2.0) - sqrt( pow(cldis1[1] / 1000.0 , 2.0) - pow(y , 2.0) );
+	printf("coordinate : (%f [m], %f [m])\n",x,y);
+
+	//slope
+
+	x0 = -sqrt( pow(X / 2.0 , 2.0) - pow(y - sp , 2.0) );
+	cldis0 = x - x0;
+	stddeg = acos( -x0 * X / 2 * cldis0 * cldis1[0] / 1000.0) * 180.0 / PI;
+	cmpdeg = (clcon[0] - 180) * 0.25;
+
+	slope = (stddeg - cmpdeg);
+	printf("slope : %f [deg]\n",slope);
+
 
 #else
 	(void)time_stamp;
