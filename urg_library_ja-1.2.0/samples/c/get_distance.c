@@ -25,7 +25,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int convex[1081] = {0};
 	long cldis1[1081] = {0};
 	
-	double X = 0.19,Y = 0.1,sp = 0.03;
+	double X = 2.0,Y = 0.1,sp = 0.5;
 	double x,y,x0;
 	double deg,rad,stddeg,cmpdeg,slope;
 	double cldis0;
@@ -38,7 +38,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
 		if(i >= 280 && i <= 800){
 			for(j = 0;j < 100; j++){
-				if(data[i-(j+1)] > data[i] || data[i] < data[i+(j+1)])
+				if(data[i-(j+1)] >= data[i] || data[i] <= data[i+(j+1)])
 					break;
 			}
 			if(j == 100)
@@ -69,13 +69,16 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 	//slope
 
-	x0 = -sqrt( pow(X / 2.0 , 2.0) - pow(y - sp , 2.0) );
-	cldis0 = x - x0;
-	stddeg = acos( -x0 * X / 2 * cldis0 * cldis1[0] / 1000.0) * 180.0 / PI;
+	x0 = sqrt( pow((X / 2.0) , 2.0) - pow((y - sp) , 2.0) );
+	printf("x0:%lf    x:%lf    y:%lf\n",x0,x,y);
+	cldis0 = x0 - x;
+//	stddeg = acos( x0 * (X / 2) - pow(y, 2.0) / (cldis0 * (cldis1[0] / 1000.0))) * 180.0 / PI;
+	stddeg = acos(((X / 2) - x) / cldis1[0]) * 180.0 / PI;
 	cmpdeg = (clcon[0] - 180) * 0.25;
 
 	slope = (stddeg - cmpdeg);
-	printf("slope : %f [deg]\n",slope);
+	printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
+//	printf("slope : %lf [deg]\n",slope);
 
 
 #else
@@ -109,7 +112,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 int main(int argc, char *argv[])
 {
 	enum {
-		CAPTURE_TIMES = 2,
+		CAPTURE_TIMES = 1,
 	};
 	urg_t urg;
 	long *data = NULL;
