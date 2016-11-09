@@ -12,7 +12,7 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 #include <stdio.h>
 #include <math.h>
 
-#define PI 3.1415
+#define PI 3.141592653589793
 
 
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
@@ -25,7 +25,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int convex[1081] = {0};
 	long cldis1[1081] = {0};
 	
-	double X = 2.0,Y = 0.1,sp = 0.5;
+	double X = 8.0,Y = 5.0,sp = 0;
 	double x,y,x0;
 	double deg,rad,stddeg,cmpdeg,slope;
 	double cldis0;
@@ -63,7 +63,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	deg = (clcon[1] - clcon[0]) * 0.25;
 	rad = deg * PI / 180.0;
 
-	y = cldis1[0] / 1000.0 * cldis1[1] / 1000.0 * sin(rad) / X;
+	y = ( (cldis1[0] / 1000.0) * (cldis1[1] / 1000.0) * sin(rad) ) / X;
 	x = (X / 2.0) - sqrt( pow(cldis1[1] / 1000.0 , 2.0) - pow(y , 2.0) );
 	printf("coordinate : (%f [m], %f [m])\n",x,y);
 
@@ -73,12 +73,13 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	printf("x0:%lf    x:%lf    y:%lf\n",x0,x,y);
 	cldis0 = x0 - x;
 //	stddeg = acos( x0 * (X / 2) - pow(y, 2.0) / (cldis0 * (cldis1[0] / 1000.0))) * 180.0 / PI;
-	stddeg = acos(((X / 2) - x) / cldis1[0]) * 180.0 / PI;
+	printf("cldis1[0] : %ld      clcon[0] : %d\n",cldis1[0],clcon[0]);
+	stddeg = acos( ( (X / 2.0) - x) / (cldis1[0] / 1000.0) ) * (180.0 / PI);
 	cmpdeg = (clcon[0] - 180) * 0.25;
 
 	slope = (stddeg - cmpdeg);
 	printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
-//	printf("slope : %lf [deg]\n",slope);
+	printf("slope : %lf [deg]\n",slope);
 
 
 #else
