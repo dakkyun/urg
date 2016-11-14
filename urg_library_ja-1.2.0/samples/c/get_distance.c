@@ -23,30 +23,61 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int i,j;
 	int clcon[1081] = {0};
 	int convex[1081] = {0};
+	int decision[1081] = {0};
 	long cldis1[1081] = {0};
 	
 	double X = 8.0,Y = 5.0,sp = 0;
-	double x,y,x0;
+	double x,y,x0,x_t[1081] = {0},y_t[1081] = {0};
 	double deg,rad,stddeg,cmpdeg,slope;
 	double cldis0;
+	double decision_1,decision_2;
 	
 	(void)data_n;
 
 	// 前方のデータのみを表示
 	for(i = rad_s;i <= rad_e;i++){
-		//front_index = urg_step2index(urg, i);
 		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
-		if(i >= 280 && i <= 800){
-			for(j = 0;j < 100; j++){
-				if(data[i-(j+1)] >= data[i] || data[i] <= data[i+(j+1)])
-					break;
-			}
-			if(j == 100)
-				convex[i] = 1;
+		if(i >= 180 && i <= 900){
+			//tunnel coodinate
+			rad = (i - 180) * 0.25 * (PI / 180.0);	
+			x_t[i] = (data[i] / 1000.0) * cos(-rad);
+			y_t[i] = (data[i] / 1000.0) * sin(-rad);	
 		}
-		//printf("%d\n",front_index);
 	}
-	j = 0;
+
+	for(i = 180;i <= 898;i++){
+		j = 1;
+		for(;;){
+			if(data[i+j] != 65533)
+				break;
+
+			j++;
+		}
+		decision_1 = (x_t[i+j] - x_t[i]) / (y_t[i+j] - y_t[i]);
+
+		for(;;){
+			if(data[i+j+1] != 65533)
+				break;
+
+			j++;
+		}
+		decision_2 = (x_t[i+j+1] - x_t[i]) / (y_t[i+j+1] - y_t[i]);
+			
+		if(-0.05 < decision_2 - decision_1 && decision_2 - decision_1 < 0.05){
+			decision[i] = j+1;
+
+		}
+	}
+	
+	for(i = 180;i <= 900;i++)
+		printf("tunnel coodinate : %d  %ld[mm]  (%lf , %lf)\n",i,data[i],x_t[i],y_t[i]);
+
+	for(i = 180;i<= 900;i++){
+		if(decision[i] != 0)
+			printf("straight : %d  %d\n",i,decision[i]);
+	}
+
+	/*j = 0;
 	for(i = rad_s;i <= rad_e;i++){
 		if(convex[i] == 1){
 			printf("Convex : %d Distance : %ld [mm]\n",i,data[i]);
@@ -79,7 +110,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 	slope = (stddeg - cmpdeg);
 	printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
-	printf("slope : %lf [deg]\n",slope);
+	printf("slope : %lf [deg]\n",slope);*/
 
 
 #else
