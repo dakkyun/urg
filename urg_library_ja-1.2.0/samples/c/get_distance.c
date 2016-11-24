@@ -14,13 +14,22 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 
 #define PI 3.141592653589793
 
+struct curve{
+		double element[3];
+		int flag;
+	};
+struct straight{
+		int step[3];
+		int flag;
+	};
+
 
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
 {
 #if 1
 
 	int front_index;
-	int i,j;
+	int i,j,k;
 	int clcon[1081] = {0};
 	int convex[1081] = {0};
 	int decision[1081] = {0};
@@ -28,9 +37,12 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	
 	double X = 8.0,Y = 5.0,sp = 0;
 	double x,y,x0,x_t[1081] = {0},y_t[1081] = {0};
-	double deg,rad,stddeg,cmpdeg,slope;
+	double deg,rad,stddeg,cmpdeg,slope,radius;
 	double cldis0;
 	double decision_1,decision_2;
+	
+	struct curve q[1081] = {0};
+	struct straight p[1081] = {0};
 	
 	(void)data_n;
 
@@ -44,38 +56,77 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			y_t[i] = (data[i] / 1000.0) * sin(-rad);	
 		}
 	}
+	//Curve equation
+	for(i = 180;i <= 900;i++){
+		if(i == 180 || i == 850){
+			for(;;){
+				if(data[i] != 65533)
+					break;
+				i++;
+			}
+			j = 10;
+			for(;;){
+				if(data[i+j] != 65533)
+					break;
+				j++;
+			}
+			k = j + 10;
+			for(;;){
+				if(data[i+k] != 65533)
+					break;
+				k++;
+			}
+		
+			q[i].element[0] = ( (y_t[i] - y_t[i+j]) * (x_t[i+k] - x_t[i+j]) - (x_t[i] - x_t[i+j]) * (y_t[i+k] - y_t[i+j]) ) / ( ( pow(x_t[i] , 2.0) - pow(x_t[i+j] , 2.0) ) * (x_t[i+k] - x_t[i+j]) - (x_t[i] - x_t[i+j]) * ( pow(x_t[i+k] , 2.0) - pow(x_t[i+j] , 2.0) ) );
+			q[i].element[1] = ( (y_t[i] - y_t[i+j]) / (x_t[i] - x_t[i+j]) ) - ( ( ( pow(x_t[i] , 2.0) - pow(x_t[i+j] , 2.0) ) * q[i].element[0] ) / (x_t[i] - x_t[i+j]) );
+			q[i].element[2] = y_t[i] - ( q[i].element[0] * pow(x_t[i] , 2.0) ) + (q[i].element[1] * x_t[i]);
+			q[i].flag = 1;
+		}
+	}
 
-	for(i = 180;i <= 898;i++){
-		j = 1;
+	//display
+	for(i = 180;i <= 900;i++){
+		if(q[i].flag == 1)
+			printf("Curve equation : y = %fx^2 + %fx + %f\n",q[i]);
+	}
+	//curvature radius
+	for(i = 180;i <= 900;i++){
+		if(q[i].flag == 1){
+			radius = ( pow( 1 + pow( 2 * q[i].element[0] * x_t[i] + q[i].element[1] , 2.0 ) , 1.5 ) ) / ( 2 * q[i].element[0] );
+			printf("R = %f\n",radius);
+		}
+	}
+		/*if(-0.01 < y_t[i+j] - y_t[i] && y_t[i+j] - y_t[i] < 0.01)
+			decision[i] = 1;
+
+		decision_1 = (x_t[i+j] - x_t[i]) / (y_t[i+j] - y_t[i]);
+		p[i].step[0] = i;
+		p[i].step[1] = i+j;
+		
 		for(;;){
+			j++;
 			if(data[i+j] != 65533)
 				break;
 
-			j++;
 		}
-		decision_1 = (x_t[i+j] - x_t[i]) / (y_t[i+j] - y_t[i]);
-
-		for(;;){
-			if(data[i+j+1] != 65533)
-				break;
-
-			j++;
-		}
-		decision_2 = (x_t[i+j+1] - x_t[i]) / (y_t[i+j+1] - y_t[i]);
+		decision_2 = (x_t[i+j] - x_t[i]) / (y_t[i+j] - y_t[i]);
+		p[i].step[2] = i+j;
 			
-		if(-0.05 < decision_2 - decision_1 && decision_2 - decision_1 < 0.05){
-			decision[i] = j+1;
+		if(-0.05 < decision_2 - decision_1 && decision_2 - decision_1 < 0.05)
+			p[i].flag = 1;
 
-		}
+		else if(decision[i] == 1 && -0.01 < y_t[i+j] - y_t[i] && y_t[i+j] - y_t[i] < 0.01)
+			p[i].flag = 1;
+
+		printf("%d  %f\n",i,decision_2 - decision_1);
 	}
 	
 	for(i = 180;i <= 900;i++)
 		printf("tunnel coodinate : %d  %ld[mm]  (%lf , %lf)\n",i,data[i],x_t[i],y_t[i]);
 
 	for(i = 180;i<= 900;i++){
-		if(decision[i] != 0)
-			printf("straight : %d  %d\n",i,decision[i]);
-	}
+		printf("step : %d  %d  %d  flag : %d\n",p[i].step[0],p[i].step[1],p[i].step[2],p[i].flag);
+	}*/
 
 	/*j = 0;
 	for(i = rad_s;i <= rad_e;i++){
