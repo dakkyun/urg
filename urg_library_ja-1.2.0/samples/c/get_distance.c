@@ -33,6 +33,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int clcon[1081] = {0};
 	int convex[1081] = {0};
 	int decision[1081] = {0};
+	int step[10] = {0};
 	long cldis1[1081] = {0};
 	
 	double X = 8.0,Y = 5.0,sp = 0;
@@ -56,6 +57,45 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			y_t[i] = (data[i] / 1000.0) * sin(-rad);	
 		}
 	}
+	//Linear approximation
+	for(i = 180;i <= 900;i++){
+		for(j = 0;j < 10;j++){
+			for(;;){
+				if(data[i] != 65533)
+					break;
+				i++
+			}
+			step[j] = i;
+		}
+	}
+	//max and min
+	max = step[0];
+	min = step[0];
+	for(i = 1;i < 10;i++){
+		if(data[max] < data[ step[i] ])
+			max = step[i];
+		if(data[min] > data[ step[i] ])
+			min = step[i];
+	}
+	//sum
+	x_s = 0;
+	for(j = 0;j < 10;j++){
+		if(step[j] != max || step[j] != min)
+			x_s += x_t[ step[j] ];
+	}
+	y_s = 0;
+	for(j = 0;j < 10;j++){
+		if(step[j] != max || step[j] != min)
+			y_s += y_t[ step[j] ];
+	}
+	//average
+	x_a = x_s / 8;
+	y_a = y_s / 8;
+	//Linear equations
+	
+
+
+	/*
 	//Curve equation
 	for(i = 180;i <= 900;i++){
 		if(i == 180 || i == 850){
@@ -95,7 +135,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			radius = ( pow( 1 + pow( 2 * q[i].element[0] * x_t[i] + q[i].element[1] , 2.0 ) , 1.5 ) ) / ( 2 * q[i].element[0] );
 			printf("R = %f\n",radius);
 		}
-	}
+	}*/
 		/*if(-0.01 < y_t[i+j] - y_t[i] && y_t[i+j] - y_t[i] < 0.01)
 			decision[i] = 1;
 
