@@ -29,7 +29,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 #if 1
 
 	int front_index;
-	int i,j,k;
+	int i,j,k,max,min;
 	int clcon[1081] = {0};
 	int convex[1081] = {0};
 	int decision[1081] = {0};
@@ -41,6 +41,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	double deg,rad,stddeg,cmpdeg,slope,radius;
 	double cldis0;
 	double decision_1,decision_2;
+	double x_s,y_s,x_a,y_a,part_1,part_2,a,b;
 	
 	struct curve q[1081] = {0};
 	struct straight p[1081] = {0};
@@ -63,38 +64,49 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			for(;;){
 				if(data[i] != 65533)
 					break;
-				i++
+				i++;
 			}
 			step[j] = i;
 		}
-	}
-	//max and min
-	max = step[0];
-	min = step[0];
-	for(i = 1;i < 10;i++){
-		if(data[max] < data[ step[i] ])
-			max = step[i];
-		if(data[min] > data[ step[i] ])
-			min = step[i];
-	}
-	//sum
-	x_s = 0;
-	for(j = 0;j < 10;j++){
-		if(step[j] != max || step[j] != min)
-			x_s += x_t[ step[j] ];
-	}
-	y_s = 0;
-	for(j = 0;j < 10;j++){
-		if(step[j] != max || step[j] != min)
-			y_s += y_t[ step[j] ];
-	}
-	//average
-	x_a = x_s / 8;
-	y_a = y_s / 8;
-	//Linear equations
-	
 
-
+		//max and min
+		max = step[0];
+		min = step[0];
+		for(j = 1;j < 10;j++){
+			if(data[max] < data[ step[j] ])
+				max = step[j];
+			if(data[min] > data[ step[j] ])
+				min = step[j];
+		}
+		//sum
+		x_s = 0;
+		for(j = 0;j < 10;j++){
+			if(step[j] != max || step[j] != min)
+				x_s += x_t[ step[j] ];
+		}
+		y_s = 0;
+		for(j = 0;j < 10;j++){
+			if(step[j] != max || step[j] != min)
+				y_s += y_t[ step[j] ];
+		}
+		//average
+		x_a = x_s / 8;
+		y_a = y_s / 8;
+		//Linear equations
+		part_1 = 0;
+		part_2 = 0;
+		for(j = 0;j < 10;j++){
+			if(step[j] != max || step[j] != min){
+				part_1 += x_t[ step[j] ] * y_t[ step[j] ];
+				part_2 += pow( x_t[ step[j] ] , 2.0 );
+			}
+		}
+		a = ( part_1 - (8 * x_a * y_a) ) / ( part_2 - ( 8 * pow(x_a , 2.0) ) );
+		b = y_a - (a * x_a);
+	}
+	//display
+	for(i = 180;i <= 900;i++)
+		printf("a : %f     b : %f\n",a,b);
 	/*
 	//Curve equation
 	for(i = 180;i <= 900;i++){
@@ -136,7 +148,15 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			printf("R = %f\n",radius);
 		}
 	}*/
-		/*if(-0.01 < y_t[i+j] - y_t[i] && y_t[i+j] - y_t[i] < 0.01)
+	//bottom line
+	/*for(i = 180;i <= 900;i++){
+		for(j = 0;j < 10;j++){
+			if
+
+
+
+
+		if(-0.01 < y_t[i+j] - y_t[i] && y_t[i+j] - y_t[i] < 0.01)
 			decision[i] = 1;
 
 		decision_1 = (x_t[i+j] - x_t[i]) / (y_t[i+j] - y_t[i]);

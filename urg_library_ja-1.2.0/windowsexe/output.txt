@@ -1,1 +1,0 @@
-urg_open: 192.168.0.10, 10940: could not open ethernet port.
