@@ -14,38 +14,29 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 
 #define PI 3.141592653589793
 
-struct curve{
-		double element[3];
-		int flag;
-	};
-struct straight{
-		int step[3];
-		int flag;
-	};
-
-
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
 {
 #if 1
 
-	int front_index;
-	int i,j,k,max,min,flag;
-	int clcon[1081] = {0};
-	int convex[1081] = {0};
-	int decision[1081] = {0};
-	int step[10] = {0};
-	long cldis1[1081] = {0};
+	int i,j,k;	//Variable of if
+	int flag;	//Whether a linear approximation
 	
-	double X = 5.871,Y = 10.109,sl = 1.459;
-	double x,y,x0,x_t[1081] = {0},y_t[1081] = {0};
-	double deg,rad,stddeg,cmpdeg,slope,radius;
-	double cldis0;
-	double decision_1,decision_2;
-	double x_s,y_s,x_a,y_a,part_1,part_2,a,b;
-	double a_1,b_1,a_2,b_2,x_c,y_c,x_cc,y_cc,cldis_1,cldis_2,diff_1,diff_2,difference,step_1,step_2,x_0,cldis_0;
-	
-	struct curve q[1081] = {0};
-	struct straight p[1081] = {0};
+	double X = 5.871,Y = 10.109,sl = 1.459;	//Tunnel size
+	double x,y;	//UAV's position
+	double x_t[1081] = {0},y_t[1081] = {0};	//Tunnel coordinates
+	double deg,rad;	//Angle from corner to corner
+	double stddeg,cmpdeg;	//Reference angle, Comparison angle
+	double slope;	//UAV's slope
+	double x_s,y_s;	//sum
+	double x_a,y_a;	//average
+	double part_1,part_2;	//Calculating element of approximate straight line
+	double a_1,b_1;	//Slope and Intercept of wall line
+	double a_2,b_2;	//Slope and Intercept of bottom line
+	double x_c,y_c,x_cc,y_cc;	//Corner coordinates
+	double cldis_1,cldis_2;	//Distance to corner
+	double diff_1,diff_2,difference;	//Detection of corner step number
+	double step_1,step_2;	//Number of steps in the corner
+	double x_0,cldis_0;	//Coordinates and distance of 180th step
 	
 	(void)data_n;
 
@@ -269,6 +260,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	slope = (stddeg - cmpdeg);
 	printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
 	printf("slope : %lf [deg]\n",slope);
+
+	printf("-----------------------\n");
 
 
 #else
