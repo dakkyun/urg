@@ -21,7 +21,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int i,j,k;	//Variable of if
 	int flag;	//Whether a linear approximation
 	
-	double X = 5.871,Y = 10.109,sl = 1.459;	//Tunnel size
+	double X = 7.91,Y = 4.1,sl = 0.13;	//Tunnel size
 	double x,y;	//UAV's position
 	double x_t[1081] = {0},y_t[1081] = {0};	//Tunnel coordinates
 	double deg,rad;	//Angle from corner to corner
