@@ -18,7 +18,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 {
 #if 1
 
-	int a = 0,i,j,k;	//Variable of if
+	int i,j,k;	//Variable of if
 	int flag;	//Whether a linear approximation
 	int step[1081] = {0};
 	
@@ -43,7 +43,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 	// 前方のデータのみを表示
 	for(i = rad_s;i <= rad_e;i++){
-		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
+		//printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
 		if(i >= 180 && i <= 900){
 			//tunnel coodinate
 			rad = (i - 180) * 0.25 * (PI / 180.0);	
@@ -181,7 +181,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			x_a = x_s / (float)k;
 			y_a = y_s / (float)k;
 			//display
-			printf("x_a : %f   y_a : %f\n",x_a,y_a);
+			//printf("x_a : %f   y_a : %f\n",x_a,y_a);
 			//Linear equations
 			part_1 = 0;
 			part_2 = 0;
@@ -273,8 +273,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	slope = (cmpdeg - stddeg);
 	//printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
 	//printf("slope : %lf [deg]\n",slope);
-	a++;
-	printf("%d %f %f %lf\n",a,x,y,slope);
+	printf("%f %f %lf\n",x,y,slope);
 
 	//printf("-----------------------\n");
 
