@@ -14,7 +14,7 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 
 #define PI 3.141592653589793
 
-/*#define BAUDRATE B9600
+#define BAUDRATE B9600
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -24,7 +24,9 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 #include <unistd.h>
 
 int serial_ardinowrite(char * , char *);
-int serial_ardinoread(char *,char *);*/
+int serial_ardinoread(char *,char *);
+
+double x;
 
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
 {
@@ -37,7 +39,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int Farther_value[10] = {0},Farther_flag;
 	
 	double X = 8.0,Y = 4.1,sl = 0.13;	//Tunnel size
-	double x,y;	//UAV's position
+	double y;	//UAV's position
 	double x_t[1081] = {0},y_t[1081] = {0};	//Tunnel coordinates
 	double deg,rad;	//Angle from corner to corner
 	double stddeg,cmpdeg;	//Reference angle, Comparison angle
@@ -61,7 +63,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 	// 前方のデータのみを表示
 	for(i = rad_s;i <= rad_e;i++){
-		printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
+		//printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
 		if(i >= 180 && i <= 900){
 			//tunnel coodinate
 			rad = (i - 180) * 0.25 * (PI / 180.0);	
@@ -208,7 +210,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 					}
 				}
 			}
-			printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
+			//printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
 			j += 10;
 		}
 		if(k > 4){
@@ -265,7 +267,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			//printf("part_1 : %f   part_2 : %f\n",part_1,part_2);
 			a_1[i] = ( part_1 - ((float)(k - m) * x_a * y_a) ) / ( part_2 - ( (float)(k - m) * pow(x_a , 2.0) ) );
 			b_1[i] = y_a - (a_1[i] * x_a);
-			printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
+			//printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
 		}
 	}
 	for(i = 180;i < 400;i++){
@@ -299,7 +301,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 					}
 				}
 			}
-			printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
+			//printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
 			j -= 10;
 		}
 		if(k > 4){
@@ -356,7 +358,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			//printf("part_1 : %f   part_2 : %f\n",part_1,part_2);
 			a_1[i] = ( part_1 - ((float)(k - m) * x_a * y_a) ) / ( part_2 - ( (float)(k - m) * pow(x_a , 2.0) ) );
 			b_1[i] = y_a - (a_1[i] * x_a);
-			printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
+			//printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
 		}
 	}
 	for(i = 900;i > 680;i--){
@@ -449,6 +451,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	//printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
 	//printf("slope : %lf [deg]\n",slope);
 	printf("%f %f %lf\n",x,y,slope);
+    x += 4.0;
 
 	//printf("-----------------------\n");
 
@@ -483,10 +486,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 int main(int argc, char *argv[])
 {
-	/*char name[255],devicename[] = "/dev/ttyACM0";
-	serial_ardinowrite(devicename,(char *)"whatyourname");
-	printf("%s\n",name);*/
-	enum {
+	char name[255],devicename[] = "/dev/ttyACM0";
+	
+    enum {
 		CAPTURE_TIMES = 1,
 	};
 	urg_t urg;
@@ -521,7 +523,9 @@ int main(int argc, char *argv[])
 			urg_close(&urg);
 			return 1;
 		}
-		print_data(&urg, data, n, time_stamp, 0, 1080);
+		//print_data(&urg, data, n, time_stamp, 0, 1080);
+        serial_ardinowrite(devicename,(char *)"whatyourname");
+	    //printf("%s\n",name);
 	}
 
 	// 切断
@@ -533,9 +537,9 @@ int main(int argc, char *argv[])
 #endif
 	return 0;
 }
-/*int serial_ardinowrite(char *devicename,char *messege)
+int serial_ardinowrite(char *devicename,char *messege)
 {
-	int a = 6456,b;
+	int a,b,i;
 	char buf[255],temp,mark[255];
 	int fd;
 	struct termios oldtio,newtio;
@@ -554,22 +558,26 @@ int main(int argc, char *argv[])
 	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
 	ioctl(fd,TCSETS,&newtio);
 
-	for(i = 0;i < 1;i++){
-	    mark[0] = 127;
-	    printf("%c\n",mark[0]);
-	    write(fd,mark,1);
-	    
-	    temp = a;
-	    buf[0] = a>>8;
-	    printf("%c\n",buf[0]);
-	    write(fd,buf,1);
-	
-	    buf[0] = temp;
-	    printf("%c\n",buf[0]);
-		write(fd,buf,1);
-	}
+    //x -= 0.01;
+    a = x * 1000.0;
+    printf("%d\n",a);
 
-    	//tcflush(fd,TCOFLUSH);
+    //sleep(2);
+
+	mark[0] = 127;
+	printf("%c\n",mark[0]);
+	write(fd,mark,1);
+	
+	temp = a;
+	buf[0] = a>>8;
+	printf("%c\n",buf[0]);
+	write(fd,buf,1);
+	
+	buf[0] = temp;
+	printf("%c\n",buf[0]);
+	write(fd,buf,1);
+
+    //tcflush(fd,TCOFLUSH);
 
 	ioctl(fd,TCSETS,&oldtio);
 
@@ -577,4 +585,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 
-}*/
+}
