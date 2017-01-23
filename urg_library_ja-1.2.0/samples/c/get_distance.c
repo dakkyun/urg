@@ -203,9 +203,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		while(1){
 			step[k] = j;
 			k++;
-			if(-0.1 > x_t[j] - x_t[j + 10] || 0.1 < x_t[j] - x_t[j + 10]){
-				if(-0.1 > x_t[j + 10] - x_t[j + 20] || 0.1 < x_t[j + 10] - x_t[j + 20]){
-					if(-0.1 > x_t[j + 20] - x_t[j + 30] || 0.1 < x_t[j + 20] - x_t[j + 30]){
+			if(-0.08 > x_t[j] - x_t[j + 10] || 0.08 < x_t[j] - x_t[j + 10]){
+				if(-0.08 > x_t[j + 10] - x_t[j + 20] || 0.08 < x_t[j + 10] - x_t[j + 20]){
+					if(-0.08 > x_t[j + 20] - x_t[j + 30] || 0.08 < x_t[j + 20] - x_t[j + 30]){
 						break;
 					}
 				}
@@ -275,13 +275,15 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			a_jdg = a_1[i] * a_2;
 			step_s = i;
 		}
-		else if(-1.0 - a_jdg > -1.0 - (a_1[i] * a_2)){
+		else if(fabs(-1.0 - a_jdg) > fabs(-1.0 - (a_1[i] * a_2))){
 			a_jdg = a_1[i] * a_2;
 			step_s = i;
 		}
+		if(-1.2 < a_jdg && -0.8 > a_jdg){
+			flag = 1;
+			break;
+		}
 	}
-	if(-1.2 < a_jdg && -0.8 > a_jdg)
-		flag = 1;
 
 	//printf("------------------\n");
 
@@ -294,9 +296,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		while(1){
 			step[k] = j;
 			k++;
-			if(-0.1 > x_t[j] - x_t[j - 10] || 0.1 < x_t[j] - x_t[j - 10]){
-				if(-0.1 > x_t[j - 10] - x_t[j - 20] || 0.1 < x_t[j - 10] - x_t[j - 20]){
-					if(-0.1 > x_t[j - 20] - x_t[j - 30] || 0.1 < x_t[j - 20] - x_t[j - 30]){
+			if(-0.08 > x_t[j] - x_t[j - 10] || 0.08 < x_t[j] - x_t[j - 10]){
+				if(-0.08 > x_t[j - 10] - x_t[j - 20] || 0.08 < x_t[j - 10] - x_t[j - 20]){
+					if(-0.08 > x_t[j - 20] - x_t[j - 30] || 0.08 < x_t[j - 20] - x_t[j - 30]){
 						break;
 					}
 				}
@@ -368,11 +370,11 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			a_jdg = a_1[i] * a_2;
 			step_s = i;
 		}
-		else if(-1.0 - a_jdg > -1.0 - (a_1[i] * a_2)){
+		else if(fabs(-1.0 - a_jdg) > fabs(-1.0 - (a_1[i] * a_2))){
 			a_jdg = a_1[i] * a_2;
 			step_s = i;
 		}
-		printf("%d\n",step_s);
+		//printf("%d\n",step_s);
 	}
 	printf("%d  a_1 : %lf     b_1 : %lf\n",step_s,a_1[step_s],b_1[step_s]);
 	
