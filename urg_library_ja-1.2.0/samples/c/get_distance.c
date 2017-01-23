@@ -281,7 +281,6 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		}
 		if(-1.2 < a_jdg && -0.8 > a_jdg){
 			flag = 1;
-			break;
 		}
 	}
 
