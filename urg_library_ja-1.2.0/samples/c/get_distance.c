@@ -11,6 +11,7 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
 #define PI 3.141592653589793
 
@@ -22,6 +23,8 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
+
+clock_t start,end;
 
 int serial_ardinowrite(char * , char *);
 int serial_ardinoread(char *,char *);
@@ -75,7 +78,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	//for(i = 180;i <= 900;i++)
 		//printf("%d  x : %f   y : %f\n",i,x_t[i],y_t[i]);
 	//Linear approximation
-	for(i = 180;i <= 900;i++){
+	for(i = 189;i <= 900;i++){
 		for(j = 0;j < 10;j++){
 			if(j == 0){
 				max = x_t[i];
@@ -99,8 +102,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			}
 		}
 		x_t_a[i] /= 8.0;
+        //printf("%d\n",i);
 	}
-	for(i = 180;i <= 900;i++){
+	for(i = 189;i <= 900;i++){
 		for(j = 0;j < 10;j++){
 			if(j == 0){
 				max = y_t[i];
@@ -122,9 +126,13 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 				y_t_a[i] += y_t[i - j];
 		}
 		y_t_a[i] /= 8.0;
+        //printf("%d  y_t_a : %f\n",i,y_t_a[i]);
+        //printf("---------------\n");
 	}
+//printf("---------------");
 	//for(i = 180;i <= 900;i++)
 		//printf("%d  x_t_a : %f   y_t_a : %f\n",i,x_t_a[i],y_t_a[i]);
+
 	//bottom line
 	i = 400;
 	k = 0;
@@ -137,14 +145,21 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 					break;
 			}
 		}
+        if(i > 870)
+            break;
+
 		i += 10;
 	}
 	//for(i = 0;i < k;i++)
 		//printf("%d %f %f\n",step[i],x_t_a[step[i]],y_t_a[step[i]]);
 	y_t_s = 0;
-	for(i = 0;i < k;i++)
+    //printf("k : %d\n",k);
+	for(i = 0;i < k;i++){
 		y_t_s += y_t_a[step[i]];
+        //printf("i : %d  y_t_s : %f\n",i,y_t_s);
+    }
 	y_t_s /= (float)k;
+    //printf("y_t_s : %f\n",y_t_s);
 	j = 0;
 	for(i = 0;i < k;i++){
 		if(-1.0 > y_t_a[step[i]] - y_t_s || 1.0 < y_t_a[step[i]] - y_t_s){
@@ -179,6 +194,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	//Linear equations
 	part_1 = 0;
 	part_2 = 0;
+    //printf("k : %d\n",k);
 	for(i = 0;i < k;i++){
 		Farther_flag = 0;
 		for(l = 0;l < j;l++){
@@ -194,10 +210,10 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	//printf("part_1 : %f   part_2 : %f\n",part_1,part_2);
 	a_2 = ( part_1 - ((float)(k - m) * x_a * y_a) ) / ( part_2 - ( (float)(k - m) * pow(x_a , 2.0) ) );
 	b_2 = y_a - (a_2 * x_a);
-	printf("a_2 : %lf     b_2 : %lf\n",a_2,b_2);
+	//printf("a_2 : %lf     b_2 : %lf\n",a_2,b_2);
 	
-	//side line
-	for(i = 180;i < 400;i++){
+    //side line
+	for(i = 189;i < 400;i++){
 		j = i;
 		k = 0;
 		while(1){
@@ -210,6 +226,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 					}
 				}
 			}
+            if(j > 870)
+                break;
 			//printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
 			j += 10;
 		}
@@ -270,8 +288,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			//printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
 		}
 	}
-	for(i = 180;i < 400;i++){
-		if(i == 180){
+
+	for(i = 189;i < 400;i++){
+		if(i == 189){
 			a_jdg = a_1[i] * a_2;
 			step_s = i;
 		}
@@ -302,6 +321,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 					}
 				}
 			}
+            if(j < 219)
+                break;
 			//printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
 			j -= 10;
 		}
@@ -362,6 +383,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			//printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
 		}
 	}
+
 	for(i = 900;i > 680;i--){
 		if(flag == 1)
 			break;
@@ -375,12 +397,12 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		}
 		//printf("%d\n",step_s);
 	}
-	printf("%d  a_1 : %lf     b_1 : %lf\n",step_s,a_1[step_s],b_1[step_s]);
+	//printf("%d  a_1 : %lf     b_1 : %lf\n",step_s,a_1[step_s],b_1[step_s]);
 	
 	//corner
 	x_c = (b_2 - b_1[step_s]) / (a_1[step_s] - a_2);
 	y_c = (a_1[step_s] * x_c) + b_1[step_s];
-	printf("x_c : %f   y_c : %f\n",x_c,y_c);
+	//printf("x_c : %f   y_c : %f\n",x_c,y_c);
 	//reverse corner
 	if(flag == 1){
 		x_cc = -sqrt( pow(X , 2.0) / ( 1 + pow(a_2 , 2.0) ) ) + x_c;
@@ -390,7 +412,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		x_cc = sqrt( pow(X , 2.0) / ( 1 + pow(a_2 , 2.0) ) ) + x_c;
 		y_cc = a_2 * (x_cc - x_c) + y_c;
 	}
-	printf("x_cc : %f   y_cc : %f\n",x_cc,y_cc);
+	//printf("x_cc : %f   y_cc : %f\n",x_cc,y_cc);
 	//distance to corner
 	cldis_1 = sqrt( pow(x_c , 2.0) + pow(y_c , 2.0) );
 	cldis_2 = sqrt( pow(x_cc , 2.0) + pow(y_cc , 2.0) );
@@ -451,8 +473,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	slope = (cmpdeg - stddeg);
 	//printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
 	//printf("slope : %lf [deg]\n",slope);
-	printf("%f %f %lf\n",x,y,slope);
     x += 4.0;
+    printf("%f %f %lf\n",x,y,slope);
 
 	//printf("-----------------------\n");
 
@@ -487,7 +509,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 int main(int argc, char *argv[])
 {
-	char name[255],devicename[] = "/dev/ttyACM0";
+    char name[255],devicename[] = "/dev/ttyACM0";
 	
     enum {
 		CAPTURE_TIMES = 1,
@@ -516,7 +538,11 @@ int main(int argc, char *argv[])
 #endif
 
 	urg_start_measurement(&urg, URG_DISTANCE, URG_SCAN_INFINITY, 0);
+
 	while (1) {
+        //start = clock();
+        //printf("start : %d\n",start);
+
 		n = urg_get_distance(&urg, data, &time_stamp);
 		if (n <= 0) {
 			printf("urg_get_distance: %s\n", urg_error(&urg));
@@ -524,9 +550,12 @@ int main(int argc, char *argv[])
 			urg_close(&urg);
 			return 1;
 		}
-		//print_data(&urg, data, n, time_stamp, 0, 1080);
+		print_data(&urg, data, n, time_stamp, 0, 1080);
         serial_ardinowrite(devicename,(char *)"whatyourname");
 	    //printf("%s\n",name);
+
+        //end = clock();
+        //printf("end : %d\nprocessing time : %d\n",end,end - start);
 	}
 
 	// Ø’f
@@ -540,47 +569,44 @@ int main(int argc, char *argv[])
 }
 int serial_ardinowrite(char *devicename,char *messege)
 {
+	struct termios oldtio,newtio;
 	int a,b,i;
 	char buf[255],temp,mark[255];
-	int fd;
-	struct termios oldtio,newtio;
+    int fd;
 
-	//strcpy(buf,messege);//¿¿¿¿¿messege¿¿¿¿¿¿¿¿¿¿¿¿¿
+    //strcpy(buf,messege);//¿¿¿¿¿messege¿¿¿¿¿¿¿¿¿¿¿¿¿
 	fd = open(devicename,O_RDWR|O_NONBLOCK); //¿¿¿¿¿¿¿¿¿
-	if(fd<0) //¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
+    if(fd<0) //¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
 	{
 		printf("ERROR on device open.\n");
 		exit(1);
 	}
-
-
-	ioctl(fd,TCGETS,&oldtio);//¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
+    ioctl(fd,TCGETS,&oldtio);//¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
 	newtio = oldtio;
 	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
 	ioctl(fd,TCSETS,&newtio);
 
-    //x -= 0.01;
     a = x * 1000.0;
-    printf("%d\n",a);
+    //printf("%d\n",a);
 
-    //sleep(2);
+    sleep(1);
 
 	mark[0] = 127;
-	printf("%c\n",mark[0]);
+	//printf("%c\n",mark[0]);
 	write(fd,mark,1);
 	
 	temp = a;
 	buf[0] = a>>8;
-	printf("%c\n",buf[0]);
+	//printf("%c\n",buf[0]);
 	write(fd,buf,1);
 	
 	buf[0] = temp;
-	printf("%c\n",buf[0]);
+	//printf("%c\n",buf[0]);
 	write(fd,buf,1);
 
     //tcflush(fd,TCOFLUSH);
 
-	ioctl(fd,TCSETS,&oldtio);
+    ioctl(fd,TCSETS,&oldtio);
 
 	close(fd);
 
