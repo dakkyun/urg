@@ -26,10 +26,11 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 
 clock_t start,end;
 
-int serial_ardinowrite(char * , char *);
-int serial_ardinoread(char *,char *);
+int serial_ardinowrite(char * , char * ,int);
+int fd,error[10];
 
 double x;
+double add = 0;
 
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
 {
@@ -41,7 +42,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	int step_max,step_min,step_s;
 	int Farther_value[10] = {0},Farther_flag;
 	
-	double X = 8.0,Y = 4.1,sl = 0.13;	//Tunnel size
+	double X = 8.0,Y = 4.1,sl = 0;	//Tunnel size
 	double y;	//UAV's position
 	double x_t[1081] = {0},y_t[1081] = {0};	//Tunnel coordinates
 	double deg,rad;	//Angle from corner to corner
@@ -124,7 +125,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 		for(j = 0;j < 10;j++){
 			if(i - j != step_max && i - j != step_min)
 				y_t_a[i] += y_t[i - j];
-		}
+
 		y_t_a[i] /= 8.0;
         //printf("%d  y_t_a : %f\n",i,y_t_a[i]);
         //printf("---------------\n");
@@ -238,7 +239,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			x_t_s /= (float)k;
 			j = 0;
 			for(n = 0;n < k;n++){
-				if(-1.0 > x_t_a[step[n]] - x_t_s || 1.0 < x_t_a[step[n]] - x_t_s){
+				if(-5.0 > x_t_a[step[n]] - x_t_s || 5.0 < x_t_a[step[n]] - x_t_s){
 					Farther_value[j] = step[n];
 					j++;
 				}
@@ -298,7 +299,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			a_jdg = a_1[i] * a_2;
 			step_s = i;
 		}
-		if(-1.2 < a_jdg && -0.8 > a_jdg){
+		if(a_2 < 0){
 			flag = 1;
 		}
 	}
@@ -333,7 +334,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 			x_t_s /= (float)k;
 			j = 0;
 			for(n = 0;n < k;n++){
-				if(-1.0 > x_t_a[step[n]] - x_t_s || 1.0 < x_t_a[step[n]] - x_t_s){
+				if(-5.0 > x_t_a[step[n]] - x_t_s || 5.0 < x_t_a[step[n]] - x_t_s){
 					Farther_value[j] = step[n];
 					j++;
 				}
@@ -474,10 +475,10 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	//printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
 	//printf("slope : %lf [deg]\n",slope);
     x += 4.0;
-    printf("%f %f %lf\n",x,y,slope);
+    //printf("%f %f %lf\n",x,y,slope);
 
 	//printf("-----------------------\n");
-
+}
 
 #else
 	(void)time_stamp;
@@ -509,7 +510,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 int main(int argc, char *argv[])
 {
-    char name[255],devicename[] = "/dev/ttyACM0";
+    char name[255],devicename[] = "/dev/rfcomm4";
+    struct termios oldtio,newtio;
 	
     enum {
 		CAPTURE_TIMES = 1,
@@ -518,7 +520,7 @@ int main(int argc, char *argv[])
 	long *data = NULL;
 	long time_stamp;
 	int n;
-	int i;
+	int i = 0,count = 0;
 	if (open_urg_sensor(&urg, argc, argv) < 0) {
 		return 1;
 	}
@@ -539,24 +541,52 @@ int main(int argc, char *argv[])
 
 	urg_start_measurement(&urg, URG_DISTANCE, URG_SCAN_INFINITY, 0);
 
+    /////////////////////////////////////
+    fd = open(devicename,O_RDWR|O_NONBLOCK); //¿¿¿¿¿¿¿¿¿
+    if(fd<0) //¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
+	{
+		printf("ERROR on device open.\n");
+		exit(1);
+	}
+    ioctl(fd,TCGETS,&oldtio);//¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
+	newtio = oldtio;
+	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+	ioctl(fd,TCSETS,&newtio);
+    ///////////////////////////////////////
+
 	while (1) {
         //start = clock();
         //printf("start : %d\n",start);
 
 		n = urg_get_distance(&urg, data, &time_stamp);
+        //printf("n : %d\n",n);
+
 		if (n <= 0) {
 			printf("urg_get_distance: %s\n", urg_error(&urg));
 			free(data);
 			urg_close(&urg);
 			return 1;
 		}
-		print_data(&urg, data, n, time_stamp, 0, 1080);
-        serial_ardinowrite(devicename,(char *)"whatyourname");
-	    //printf("%s\n",name);
-
-        //end = clock();
-        //printf("end : %d\nprocessing time : %d\n",end,end - start);
+		print_data(&urg, data, n, time_stamp, 0, 1080);  
+        serial_ardinowrite(devicename,(char *)"whatyourname",count);
+        count++;
+        if(count == 10)
+            count = 0;
+        
+        /*while(1){
+            end = clock();
+            if(end - start >= 50000){
+                break;
+            }
+        }
+        printf("%d  end : %d\nprocessing time : %d\n",i,end,end - start);
+        i++;*/
 	}
+    //////////////////////////////////////////
+    ioctl(fd,TCSETS,&oldtio);
+
+	close(fd);
+    //////////////////////////////////////////
 
 	// Ø’f
 	free(data);
@@ -567,29 +597,37 @@ int main(int argc, char *argv[])
 #endif
 	return 0;
 }
-int serial_ardinowrite(char *devicename,char *messege)
+int serial_ardinowrite(char *devicename,char *messege,int i)
 {
-	struct termios oldtio,newtio;
-	int a,b,i;
+	//struct termios oldtio,newtio;
+	int a,b,j;
+    int sum = 0;
 	char buf[255],temp,mark[255];
-    int fd;
+    //int fd;
 
-    //strcpy(buf,messege);//¿¿¿¿¿messege¿¿¿¿¿¿¿¿¿¿¿¿¿
-	fd = open(devicename,O_RDWR|O_NONBLOCK); //¿¿¿¿¿¿¿¿¿
-    if(fd<0) //¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
+    //strcpy(buf,messege);
+	/*fd = open(devicename,O_RDWR|O_NONBLOCK);
+    if(fd<0)
 	{
 		printf("ERROR on device open.\n");
 		exit(1);
 	}
-    ioctl(fd,TCGETS,&oldtio);//¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿
+    ioctl(fd,TCGETS,&oldtio);
 	newtio = oldtio;
 	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
-	ioctl(fd,TCSETS,&newtio);
+	ioctl(fd,TCSETS,&newtio);*/
+    a = x * 1000.0;  
+    ///////////////////////////////
+    if(a < 0 || 8000 < a){
+        for(j = 0;j < 10;j++)
+            sum += error[j];
+        a = sum / 10;
+    }
+    //printf("i : %d\n",i);
+    error[i] = a;
+    ///////////////////////////////
 
-    a = x * 1000.0;
-    //printf("%d\n",a);
-
-    sleep(1);
+    printf("a : %d\n",a);
 
 	mark[0] = 127;
 	//printf("%c\n",mark[0]);
@@ -601,14 +639,14 @@ int serial_ardinowrite(char *devicename,char *messege)
 	write(fd,buf,1);
 	
 	buf[0] = temp;
-	//printf("%c\n",buf[0]);
+    //printf("%c\n",buf[0]);
 	write(fd,buf,1);
 
     //tcflush(fd,TCOFLUSH);
 
-    ioctl(fd,TCSETS,&oldtio);
+    /*ioctl(fd,TCSETS,&oldtio);
 
-	close(fd);
+	close(fd);*/
 
 	return 0;
 
