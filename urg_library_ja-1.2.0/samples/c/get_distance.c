@@ -26,8 +26,10 @@ $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
 
 clock_t start,end;
 
-int serial_ardinowrite(char * , char * ,int);
+int serial_arduinowrite(char * , char * ,int);
+int serial_arduinoread(char *,char *);
 int fd,error[10];
+//int a = 8000;
 
 double x;
 double add = 0;
@@ -510,7 +512,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
 int main(int argc, char *argv[])
 {
-    char name[255],devicename[] = "/dev/rfcomm4";
+    char name[255],devicename[] = "/dev/ttyACM0";
     struct termios oldtio,newtio;
 	
     enum {
@@ -554,10 +556,9 @@ int main(int argc, char *argv[])
 	ioctl(fd,TCSETS,&newtio);
     ///////////////////////////////////////
 
+    start = 0;
+    end = 0;
 	while (1) {
-        //start = clock();
-        //printf("start : %d\n",start);
-
 		n = urg_get_distance(&urg, data, &time_stamp);
         //printf("n : %d\n",n);
 
@@ -567,20 +568,17 @@ int main(int argc, char *argv[])
 			urg_close(&urg);
 			return 1;
 		}
-		print_data(&urg, data, n, time_stamp, 0, 1080);  
-        serial_ardinowrite(devicename,(char *)"whatyourname",count);
+        if(end - start >= 500){
+		    print_data(&urg, data, n, time_stamp, 0, 1080);  
+            serial_arduinowrite(devicename,(char *)"whatyourname",count);
+            start = clock();
+//          printf("%ld\n",clock());
+        }
         count++;
         if(count == 10)
             count = 0;
         
-        /*while(1){
-            end = clock();
-            if(end - start >= 50000){
-                break;
-            }
-        }
-        printf("%d  end : %d\nprocessing time : %d\n",i,end,end - start);
-        i++;*/
+        end = clock();
 	}
     //////////////////////////////////////////
     ioctl(fd,TCSETS,&oldtio);
@@ -597,7 +595,7 @@ int main(int argc, char *argv[])
 #endif
 	return 0;
 }
-int serial_ardinowrite(char *devicename,char *messege,int i)
+int serial_arduinowrite(char *devicename,char *messege,int i)
 {
 	//struct termios oldtio,newtio;
 	int a,b,j;
@@ -616,7 +614,8 @@ int serial_ardinowrite(char *devicename,char *messege,int i)
 	newtio = oldtio;
 	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
 	ioctl(fd,TCSETS,&newtio);*/
-    a = x * 1000.0;  
+    a = x * 1000.0;
+//  a -= 10;
     ///////////////////////////////
     if(a < 0 || 8000 < a){
         for(j = 0;j < 10;j++)
@@ -651,3 +650,4 @@ int serial_ardinowrite(char *devicename,char *messege,int i)
 	return 0;
 
 }
+
