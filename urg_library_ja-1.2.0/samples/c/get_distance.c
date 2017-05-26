@@ -63,7 +63,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	double max,min;
 	double x_t_a[1081] = {0},y_t_a[1081] = {0};
 	double x_t_s,y_t_s;
-	double a_jdg;
+	double angle,angle_jdg;
 	
 	(void)data_n;
 
