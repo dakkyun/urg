@@ -293,12 +293,14 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	}
 
 	for(i = 189;i < 400;i++){
+		angle = acos( fabs(a_1[i]*a_2 + b_1[i]*b_2) / sqrt( pow(a_1[i] , 2) + pow(b_1[i] , 2) ) * sqrt( pow(a_2 , 2) + pow(b_2 , 2) ) );
+
 		if(i == 189){
-			a_jdg = a_1[i] * a_2;
+			angle_jdg = angle * (180 / PI);
 			step_s = i;
 		}
-		else if(fabs(-1.0 - a_jdg) > fabs(-1.0 - (a_1[i] * a_2))){
-			a_jdg = a_1[i] * a_2;
+		else if( fabs(90.0 - angle_jdg) > fabs(90.0 - angle * (180 / PI)) ){
+			angle_jdg = angle * (180 / PI);
 			step_s = i;
 		}
 		if(a_2 < 0){
@@ -390,17 +392,20 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 	for(i = 900;i > 680;i--){
 		if(flag == 1)
 			break;
+
+		angle = acos( fabs(a_1[i]*a_2 + b_1[i]*b_2) / sqrt( pow(a_1[i] , 2) + pow(b_1[i] , 2) ) * sqrt( pow(a_2 , 2) + pow(b_2 , 2) ) );
+
 		if(i == 900){
-			a_jdg = a_1[i] * a_2;
+			angle_jdg = angle * (180 / PI);
 			step_s = i;
 		}
-		else if(fabs(-1.0 - a_jdg) > fabs(-1.0 - (a_1[i] * a_2))){
-			a_jdg = a_1[i] * a_2;
+		else if( fabs(90.0 - angle_jdg) > fabs(90.0 - angle * (180 / PI)) ){
+			angle_jdg = angle * (180 / PI);
 			step_s = i;
-		}
-		//printf("%d\n",step_s);
+		}	
+//		printf("%d\n",step_s);
 	}
-	//printf("%d  a_1 : %lf     b_1 : %lf\n",step_s,a_1[step_s],b_1[step_s]);
+//	printf("%d  a_1 : %lf     b_1 : %lf\n",step_s,a_1[step_s],b_1[step_s]);
 	
 	//corner
 	x_c = (b_2 - b_1[step_s]) / (a_1[step_s] - a_2);
