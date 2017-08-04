@@ -563,8 +563,8 @@ int main(int argc, char *argv[])
   ioctl(fd,TCSETS,&newtio);
   ///////////////////////////////////////
 
-  //  start = 0;
-  //  end = 0;
+  start = 0;
+  end = 0;
   while (1) {
     n = urg_get_distance(&urg, data, &time_stamp);
     //printf("n : %d\n",n);
@@ -639,16 +639,16 @@ int serial_arduinowrite(char *devicename,char *messege,int i)
 
   strcpy(buf,"");
   mark[0] = 126;
-  printf("mark[0] : %c\n",mark[0]);
+  //printf("mark[0] : %c\n",mark[0]);
   write(fd,mark,1);
 
   temp = a;
   buf[0] = a>>8;
-  printf("buf[0] : %c\n",buf[0]);
+  //printf("buf[0] : %c\n",buf[0]);
   write(fd,buf,1);
 
   buf[0] = temp;
-  printf("buf[0] : %c\n",buf[0]);
+  //printf("buf[0] : %c\n",buf[0]);
   write(fd,buf,1);
 
   //tcflush(fd,TCOFLUSH);
