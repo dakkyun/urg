@@ -3,7 +3,7 @@
   \author Satofumi KAMIMURA
 
   $Id: get_distance.c,v c5747add6615 2015/05/07 03:18:34 alexandr $
- */
+  */
 
 #include "urg_sensor.h"
 #include "urg_utils.h"
@@ -29,12 +29,11 @@ clock_t start,end;
 int serial_arduinowrite(char * , char * ,int);
 int serial_arduinoread(char *,char *);
 int fd,error[10];
-//int a = 8000;
 
 double x;
 double add = 0;
 
-char data[255] = {0};
+char rec[255] = {0};
 
 static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int rad_s, int rad_e)
 {
@@ -45,6 +44,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
   int step[1081] = {0};
   int step_max,step_min,step_s;
   int Farther_value[10] = {0},Farther_flag;
+  int counter;
 
   double X = 8.0,Y = 4.1,sl = 0;	//Tunnel size
   double y;	//UAV's position
@@ -69,7 +69,6 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
   (void)data_n;
 
-  // 前方のデータのみを表示
   for(i = rad_s;i <= rad_e;i++){
     //printf("%d    :   %ld [mm], (%ld [msec])\n", i, data[i], time_stamp);
     if(i >= 180 && i <= 900){
@@ -82,6 +81,7 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
   //display
   //for(i = 180;i <= 900;i++)
   //printf("%d  x : %f   y : %f\n",i,x_t[i],y_t[i]);
+
   //Linear approximation
   for(i = 189;i <= 900;i++){
     for(j = 0;j < 10;j++){
@@ -102,12 +102,10 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
     }
     for(j = 0;j < 10;j++){
       if(i - j != step_max && i - j != step_min){
-        //printf("%d\n",i-j);
         x_t_a[i] += x_t[i - j];
       }
     }
     x_t_a[i] /= 8.0;
-    //printf("%d\n",i);
   }
   for(i = 189;i <= 900;i++){
     for(j = 0;j < 10;j++){
@@ -131,22 +129,20 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         y_t_a[i] += y_t[i - j];
 
       y_t_a[i] /= 8.0;
-      //printf("%d  y_t_a : %f\n",i,y_t_a[i]);
-      //printf("---------------\n");
     }
-    //printf("---------------");
+
     //for(i = 180;i <= 900;i++)
     //printf("%d  x_t_a : %f   y_t_a : %f\n",i,x_t_a[i],y_t_a[i]);
 
     //bottom line
-    i = 400;
+    i = 410;
     k = 0;
     while(1){
       step[k] = i;
       k++;
-      if(-0.1 > y_t[i] - y_t[i + 10] || 0.1 < y_t[i] - y_t[i + 10]){
-        if(-0.1 > y_t[i + 10] - y_t[i + 20] || 0.1 < y_t[i + 10] - y_t[i + 20]){
-          if(-0.1 > y_t[i + 20] - y_t[i + 30] || 0.1 < y_t[i + 20] - y_t[i + 30])
+      if(fabs(y_t[i] - y_t[i + 10]) > 0.1){
+        if(fabs(y_t[i + 10] - y_t[i + 20]) > 0.1){
+          if(fabs(y_t[i + 20] - y_t[i + 30]) > 0.1)
             break;
         }
       }
@@ -155,23 +151,24 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
       i += 10;
     }
+
     //for(i = 0;i < k;i++)
     //printf("%d %f %f\n",step[i],x_t_a[step[i]],y_t_a[step[i]]);
+
     y_t_s = 0;
-    //printf("k : %d\n",k);
     for(i = 0;i < k;i++){
       y_t_s += y_t_a[step[i]];
-      //printf("i : %d  y_t_s : %f\n",i,y_t_s);
     }
     y_t_s /= (float)k;
-    //printf("y_t_s : %f\n",y_t_s);
+
     j = 0;
     for(i = 0;i < k;i++){
-      if(-1.0 > y_t_a[step[i]] - y_t_s || 1.0 < y_t_a[step[i]] - y_t_s){
+      if(fabs(y_t_a[step[i]] - y_t_s) > 1.0){
         Farther_value[j] = step[i];
         j++;
       }
     }
+
     //sum
     x_s = 0;
     y_s = 0;
@@ -189,17 +186,14 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         y_s += y_t_a[ step[i] ];
       }
     }
-    //display
-    //printf("x_s : %f   y_s : %f\n",x_s,y_s);
+
     //average
     x_a = x_s / (float)(k - m);
     y_a = y_s / (float)(k - m);
-    //display
-    //printf("x_a : %f   y_a : %f\n",x_a,y_a);
+
     //Linear equations
     part_1 = 0;
     part_2 = 0;
-    //printf("k : %d\n",k);
     for(i = 0;i < k;i++){
       Farther_flag = 0;
       for(l = 0;l < j;l++){
@@ -211,29 +205,29 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         part_2 += pow( x_t_a[ step[i] ] , 2.0 );
       }
     }
-    //display
-    //printf("part_1 : %f   part_2 : %f\n",part_1,part_2);
     a_2 = ( part_1 - ((float)(k - m) * x_a * y_a) ) / ( part_2 - ( (float)(k - m) * pow(x_a , 2.0) ) );
     b_2 = y_a - (a_2 * x_a);
-    //printf("a_2 : %lf     b_2 : %lf\n",a_2,b_2);
 
     //side line
+    if(data[180] < data[900]){
+      flag = 1;
+    }
+
     for(i = 189;i < 400;i++){
       j = i;
       k = 0;
       while(1){
         step[k] = j;
         k++;
-        if(-0.08 > x_t[j] - x_t[j + 10] || 0.08 < x_t[j] - x_t[j + 10]){
-          if(-0.08 > x_t[j + 10] - x_t[j + 20] || 0.08 < x_t[j + 10] - x_t[j + 20]){
-            if(-0.08 > x_t[j + 20] - x_t[j + 30] || 0.08 < x_t[j + 20] - x_t[j + 30]){
+        if(fabs(x_t[j] - x_t[j + 10]) > 0.08){
+          if(fabs(x_t[j + 10] - x_t[j + 20]) > 0.08){
+            if(fabs(x_t[j + 20] - x_t[j + 30]) > 0.08){
               break;
             }
           }
         }
         if(j > 870)
           break;
-        //printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
         j += 10;
       }
       if(k > 4){
@@ -243,11 +237,12 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         x_t_s /= (float)k;
         j = 0;
         for(n = 0;n < k;n++){
-          if(-5.0 > x_t_a[step[n]] - x_t_s || 5.0 < x_t_a[step[n]] - x_t_s){
+          if(fabs(x_t_a[step[n]] - x_t_s) > 5.0){
             Farther_value[j] = step[n];
             j++;
           }
         }
+
         //sum
         x_s = 0;
         y_s = 0;
@@ -265,13 +260,11 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
             y_s += y_t_a[ step[n] ];
           }
         }
-        //display
-        //printf("x_s : %f   y_s : %f\n",x_s,y_s);
+
         //average
         x_a = x_s / (float)(k - m);
         y_a = y_s / (float)(k - m);
-        //display
-        //printf("x_a : %f   y_a : %f\n",x_a,y_a);
+
         //Linear equations
         part_1 = 0;
         part_2 = 0;
@@ -286,51 +279,49 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
             part_2 += pow( x_t_a[ step[n] ] , 2.0 );
           }
         }
-        //display
-        //printf("part_1 : %f   part_2 : %f\n",part_1,part_2);
+
         a_1[i] = ( part_1 - ((float)(k - m) * x_a * y_a) ) / ( part_2 - ( (float)(k - m) * pow(x_a , 2.0) ) );
         b_1[i] = y_a - (a_1[i] * x_a);
-        //printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
       }
     }
 
+    counter = 0;
     for(i = 189;i < 400;i++){
-      angle = acos( fabs(a_1[i]*a_2 + b_1[i]*b_2) / sqrt( pow(a_1[i] , 2) + pow(b_1[i] , 2) ) * sqrt( pow(a_2 , 2) + pow(b_2 , 2) ) );
+      if(a_1[i] != 0){
+        counter++;
+        angle = acos( fabs(a_1[i]*a_2 + b_1[i]*b_2) / sqrt( pow(a_1[i] , 2) + pow(b_1[i] , 2) ) * sqrt( pow(a_2 , 2) + pow(b_2 , 2) ) );
 
-      if(i == 189){
-        angle_jdg = angle * (180 / PI);
-        step_s = i;
-      }
-      else if( fabs(90.0 - angle_jdg) > fabs(90.0 - angle * (180 / PI)) ){
-        angle_jdg = angle * (180 / PI);
-        step_s = i;
-      }
-      if(a_2 < 0){
-        flag = 1;
+        if(counter == 1){
+          angle_jdg = angle * (180 / PI);
+          step_s = i;
+        }
+        else if( fabs(90.0 - angle_jdg) > fabs(90.0 - angle * (180 / PI)) ){
+          angle_jdg = angle * (180 / PI);
+          step_s = i;
+        }
       }
     }
 
-    //printf("------------------\n");
 
     //next side line
     for(i = 900;i > 680;i--){
       if(flag == 1)
         break;
+
       j = i;
       k = 0;
       while(1){
         step[k] = j;
         k++;
-        if(-0.08 > x_t[j] - x_t[j - 10] || 0.08 < x_t[j] - x_t[j - 10]){
-          if(-0.08 > x_t[j - 10] - x_t[j - 20] || 0.08 < x_t[j - 10] - x_t[j - 20]){
-            if(-0.08 > x_t[j - 20] - x_t[j - 30] || 0.08 < x_t[j - 20] - x_t[j - 30]){
+        if(fabs(x_t[i] - x_t[i - 10]) > 0.08){
+          if(fabs(x_t[i + 10] - x_t[i - 20]) > 0.08){
+            if(fabs(x_t[i + 20] - x_t[i - 30]) > 0.08){
               break;
             }
           }
         }
         if(j < 219)
           break;
-        //printf("%d  x_t_a : %f  y_t_a : %f\n",j,x_t_a[j],y_t_a[j]);
         j -= 10;
       }
       if(k > 4){
@@ -340,11 +331,12 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         x_t_s /= (float)k;
         j = 0;
         for(n = 0;n < k;n++){
-          if(-5.0 > x_t_a[step[n]] - x_t_s || 5.0 < x_t_a[step[n]] - x_t_s){
+          if(fabs(x_t_a[step[n]] - x_t_s) > 5.0){
             Farther_value[j] = step[n];
             j++;
           }
         }
+
         //sum
         x_s = 0;
         y_s = 0;
@@ -362,13 +354,11 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
             y_s += y_t_a[ step[n] ];
           }
         }
-        //display
-        //printf("x_s : %f   y_s : %f\n",x_s,y_s);
+
         //average
         x_a = x_s / (float)(k - m);
         y_a = y_s / (float)(k - m);
-        //display
-        //printf("x_a : %f   y_a : %f\n",x_a,y_a);
+
         //Linear equations
         part_1 = 0;
         part_2 = 0;
@@ -383,36 +373,36 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
             part_2 += pow( x_t_a[ step[n] ] , 2.0 );
           }
         }
-        //display
-        //printf("part_1 : %f   part_2 : %f\n",part_1,part_2);
+
         a_1[i] = ( part_1 - ((float)(k - m) * x_a * y_a) ) / ( part_2 - ( (float)(k - m) * pow(x_a , 2.0) ) );
         b_1[i] = y_a - (a_1[i] * x_a);
-        //printf("%d  a_1 : %f  b_1 : %f\n",i,a_1[i],b_1[i]);
       }
     }
 
+    counter = 0;
     for(i = 900;i > 680;i--){
       if(flag == 1)
         break;
 
-      angle = acos( fabs(a_1[i]*a_2 + b_1[i]*b_2) / sqrt( pow(a_1[i] , 2) + pow(b_1[i] , 2) ) * sqrt( pow(a_2 , 2) + pow(b_2 , 2) ) );
+      if(a_1[i] != 0){
+        counter++;
+        angle = acos( fabs(a_1[i]*a_2 + b_1[i]*b_2) / sqrt( pow(a_1[i] , 2) + pow(b_1[i] , 2) ) * sqrt( pow(a_2 , 2) + pow(b_2 , 2) ) );
 
-      if(i == 900){
-        angle_jdg = angle * (180 / PI);
-        step_s = i;
+        if(counter == 1){
+          angle_jdg = angle * (180 / PI);
+          step_s = i;
+        }
+        else if( fabs(90.0 - angle_jdg) > fabs(90.0 - angle * (180 / PI)) ){
+          angle_jdg = angle * (180 / PI);
+          step_s = i;
+        }	
       }
-      else if( fabs(90.0 - angle_jdg) > fabs(90.0 - angle * (180 / PI)) ){
-        angle_jdg = angle * (180 / PI);
-        step_s = i;
-      }	
-      //		printf("%d\n",step_s);
     }
-    //	printf("%d  a_1 : %lf     b_1 : %lf\n",step_s,a_1[step_s],b_1[step_s]);
 
     //corner
     x_c = (b_2 - b_1[step_s]) / (a_1[step_s] - a_2);
     y_c = (a_1[step_s] * x_c) + b_1[step_s];
-    //printf("x_c : %f   y_c : %f\n",x_c,y_c);
+
     //reverse corner
     if(flag == 1){
       x_cc = -sqrt( pow(X , 2.0) / ( 1 + pow(a_2 , 2.0) ) ) + x_c;
@@ -422,15 +412,15 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
       x_cc = sqrt( pow(X , 2.0) / ( 1 + pow(a_2 , 2.0) ) ) + x_c;
       y_cc = a_2 * (x_cc - x_c) + y_c;
     }
-    //printf("x_cc : %f   y_cc : %f\n",x_cc,y_cc);
+
     //distance to corner
     cldis_1 = sqrt( pow(x_c , 2.0) + pow(y_c , 2.0) );
     cldis_2 = sqrt( pow(x_cc , 2.0) + pow(y_cc , 2.0) );
-    //printf("cldis_1 : %f   cldis_2 : %f\n",cldis_1,cldis_2);
+
     //step of corner
     for(i = 180;i <= 900;i++){
-      diff_1 = x_c - x_t[i];
-      diff_2 = y_c - y_t[i];
+      diff_1 = x_c - x_t_a[i];
+      diff_2 = y_c - y_t_a[i];
       diff_1 = fabs(diff_1);
       diff_2 = fabs(diff_2);
       if(i == 180){
@@ -442,10 +432,10 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         step_1 = i;
       }
     }
-    //printf("---------------------\n");
+
     for(i = 180;i <= 900;i++){
-      diff_1 = x_cc - x_t[i];
-      diff_2 = y_cc - y_t[i];
+      diff_1 = x_cc - x_t_a[i];
+      diff_2 = y_cc - y_t_a[i];
       diff_1 = fabs(diff_1);
       diff_2 = fabs(diff_2);
       if(i == 180){
@@ -457,10 +447,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
         step_2 = i;
       }
     }
-    //printf("---------------------\n");
-    //printf("%d\n",a);
+
     //coordinate
-    //printf("step_1 : %f   step_2 : %f\n",step_1,step_2);
     if(flag == 1)
       deg = (step_2 - step_1) * 0.25;
     else
@@ -468,25 +456,27 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
     rad = deg * PI / 180.0;
 
     y = ( cldis_1 * cldis_2 * sin(rad) ) / X;
-    x = (X / 2.0) - sqrt( pow(cldis_1 , 2.0) - pow(y , 2.0) );
-    //printf("coordinate : (%f [m], %f [m])\n",x,y);
+    if(flag == 1)
+      x = (X / 2.0) - sqrt( pow(cldis_1 , 2.0) - pow(y , 2.0) );
+    else
+      x = (X / 2.0) - sqrt( pow(cldis_2 , 2.0) - pow(y , 2.0) );
 
     //slope
     x_0 = sqrt( pow((X / 2.0) , 2.0) - pow((y - sl) , 2.0) );
     cldis_0 = x_0 - x;
-    stddeg = acos( ( (X / 2.0) - x) / cldis_1 ) * (180.0 / PI);
+    if(flag == 1)
+      stddeg = acos( ( (X / 2.0) - x) / cldis_1 ) * (180.0 / PI);
+    else
+      stddeg = acos( ( (X / 2.0) - x) / cldis_2 ) * (180.0 / PI);
     if(flag == 1)
       cmpdeg = (step_1 - 180) * 0.25;
     else
       cmpdeg = (step_2 - 180) * 0.25;
 
     slope = (cmpdeg - stddeg);
-    //printf("stddeg : %lf    cmpdeg : %lf\n",stddeg,cmpdeg);
-    //printf("slope : %lf [deg]\n",slope);
-    x += 4.0;
-    //printf("%f %f %lf\n",x,y,slope);
 
-    //printf("-----------------------\n");
+    x += 4.0;
+
   }
 
 #else
@@ -551,13 +541,13 @@ int main(int argc, char *argv[])
   urg_start_measurement(&urg, URG_DISTANCE, URG_SCAN_INFINITY, 0);
 
   /////////////////////////////////////
-  fd = open(devicename,O_RDWR|O_NONBLOCK); //ｿｿｿｿｿｿｿｿｿ
-  if(fd<0) //ｿｿｿｿｿｿｿｿｿｿｿｿｿｿｿｿ
+  fd = open(devicename,O_RDWR|O_NONBLOCK);
+  if(fd<0) 
   {
     printf("ERROR on device open.\n");
     exit(1);
   }
-  ioctl(fd,TCGETS,&oldtio);//ｿｿｿｿｿｿｿｿｿｿｿｿｿｿｿ
+  ioctl(fd,TCGETS,&oldtio);
   newtio = oldtio;
   newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
   ioctl(fd,TCSETS,&newtio);
@@ -567,7 +557,6 @@ int main(int argc, char *argv[])
   end = 0;
   while (1) {
     n = urg_get_distance(&urg, data, &time_stamp);
-    //printf("n : %d\n",n);
 
     if (n <= 0) {
       printf("urg_get_distance: %s\n", urg_error(&urg));
@@ -581,7 +570,6 @@ int main(int argc, char *argv[])
       serial_arduinowrite(devicename,(char *)"whatyourname",count);
       printf("\n\n");
       start = clock();
-      //printf("%ld\n",clock());
     }
     count++;
     if(count == 10)
@@ -612,26 +600,13 @@ int serial_arduinowrite(char *devicename,char *messege,int i)
   char temp,mark[255];
   char buf[255];
 
-  /*  strcpy(buf,messege);
-      fd = open(devicename,O_RDWR|O_NONBLOCK);
-      if(fd<0)
-      {
-      printf("ERROR on device open.\n");
-      exit(1);
-      }
-      ioctl(fd,TCGETS,&oldtio);
-      newtio = oldtio;
-      newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
-      ioctl(fd,TCSETS,&newtio);*/
   a = x * 1000.0;
-  //  a -= 10;
   ///////////////////////////////
   if(a < 0 || 8000 < a){
     for(j = 0;j < 10;j++)
       sum += error[j];
     a = sum / 10;
   }
-  //printf("i : %d\n",i);
   error[i] = a;
   ///////////////////////////////
 
@@ -651,19 +626,11 @@ int serial_arduinowrite(char *devicename,char *messege,int i)
   //printf("buf[0] : %c\n",buf[0]);
   write(fd,buf,1);
 
-  //tcflush(fd,TCOFLUSH);
-
-  /*ioctl(fd,TCSETS,&oldtio);
-
-    close(fd);*/
-
   return 0;
-
 }
 
 int serial_arduinoread(char *devicename,char *messege)
 {
-  //  struct termios oldtio,newtio;
   char mes[255];
   char CR[2],LF[2];
   int flg,len;
@@ -672,8 +639,8 @@ int serial_arduinoread(char *devicename,char *messege)
   strcpy(mes,"");
   while(flg)
   {
-    strcpy(data,"");
-    len = read(fd,data,1);
+    strcpy(rec,"");
+    len = read(fd,rec,1);
 
     if(len == 0)
     {
@@ -682,7 +649,7 @@ int serial_arduinoread(char *devicename,char *messege)
     }
     else 
     {
-      strncat(mes,data,len);
+      strncat(mes,rec,len);
       if(strstr(mes,CR) != NULL || strstr(mes,LF) != NULL)
       {
         flg = 0;
@@ -690,9 +657,6 @@ int serial_arduinoread(char *devicename,char *messege)
       break;
     }
   }
-  //  ioctl(fd,TCSETS,&oldtio);
-
-  //  close(fd);
 
   return 0;
 }
