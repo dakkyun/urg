@@ -26,11 +26,14 @@
 
 clock_t start,end;
 
+FILE *fp;
+
 int serial_arduinowrite(char * , char * ,int);
 int serial_arduinoread(char *,char *);
 int fd,error[10];
 
-double x;
+double x,y;	//UAV's position
+double slope;	//UAV's slope
 double add = 0;
 
 char rec[255] = {0};
@@ -47,11 +50,9 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
   int counter;
 
   double X = 8.0,Y = 4.1,sl = 0;	//Tunnel size
-  double y;	//UAV's position
   double x_t[1081] = {0},y_t[1081] = {0};	//Tunnel coordinates
   double deg,rad;	//Angle from corner to corner
   double stddeg,cmpdeg;	//Reference angle, Comparison angle
-  double slope;	//UAV's slope
   double x_s,y_s;	//sum
   double x_a,y_a;	//average
   double part_1,part_2;	//Calculating element of approximate straight line
@@ -477,6 +478,8 @@ static void print_data(urg_t *urg, long data[], int data_n, long time_stamp, int
 
     x += 4.0;
 
+    //fprintf(fp,"x : %f  y : %f  deg : %f\n",x,y,slope);
+    //printf("x : %f  y : %f  deg : %f\n",x,y,slope);
   }
 
 #else
@@ -552,7 +555,7 @@ int main(int argc, char *argv[])
   newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
   ioctl(fd,TCSETS,&newtio);
   ///////////////////////////////////////
-
+  fp = fopen("data2.txt","w");
   start = 0;
   end = 0;
   while (1) {
@@ -566,7 +569,7 @@ int main(int argc, char *argv[])
     }
     if(end - start >= 500){
       print_data(&urg, data, n, time_stamp, 0, 1080); 
-      serial_arduinoread(devicename,name);
+      //serial_arduinoread(devicename,name);
       serial_arduinowrite(devicename,(char *)"whatyourname",count);
       printf("\n\n");
       start = clock();
@@ -582,7 +585,7 @@ int main(int argc, char *argv[])
 
   close(fd);
   //////////////////////////////////////////
-
+  fclose(fp);
   // êÿíf
   free(data);
   urg_close(&urg);
@@ -610,7 +613,8 @@ int serial_arduinowrite(char *devicename,char *messege,int i)
   error[i] = a;
   ///////////////////////////////
 
-  printf("a : %d\n",a);
+  //printf("a : %d\n",a);
+  fprintf(fp,"x : %f  y : %f  deg : %f\n",a,y,slope);
 
   strcpy(buf,"");
   mark[0] = 126;
